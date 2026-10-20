@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PO2 proxy collection explorer — a public preview of core 64PE406-E1 and its three linked studies.">
+  <title>64PE406-E1 · PO2 Proxy Explorer</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=proxy-groups-2">
+  <link rel="stylesheet" href="./vendor/leaflet.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">P<span>O</span><sub>2</sub></span><span class="brand-name">Proxy Explorer<small>64PE406-E1 preview</small></span></div>
+    <span class="top-status"><i></i> Public preview · 64PE406-E1 only</span>
+  </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <p class="side-heading">EXPLORE</p>
+      <nav aria-label="Dashboard views">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◫</span> Overview</button>
+        <button class="nav-item" data-view="groups"><span class="nav-icon">◎</span> Proxy groups &amp; map</button>
+        <button class="nav-item" data-view="profiles"><span class="nav-icon">▤</span> Core profiles</button>
+        <button class="nav-item" data-view="inspector"><span class="nav-icon">⌕</span> Site Inspector</button>
+        <button class="nav-item" data-view="registry"><span class="nav-icon">⌖</span> Site registry</button>
+        <button class="nav-item" data-view="cores"><span class="nav-icon">◉</span> Core explorer</button>
+        <button class="nav-item" data-view="compare"><span class="nav-icon">⇄</span> Compare records</button>
+        <button class="nav-item" data-view="methods"><span class="nav-icon">≡</span> Data &amp; methods</button>
+      </nav>
+      <div class="sidebar-note"><strong>Built from the PO2 workbooks</strong><p>Each source workbook stays traceable to its core and reference. Values shown here are provisional.</p></div>
+    </aside>
+    <main>
+      <section class="hero">
+        <div><p class="eyebrow">PO2 · OCEAN DEOXYGENATION &amp; REOXYGENATION</p><h1>Explore core 64PE406-E1.</h1><p class="hero-copy">A public preview of three studies from one Eastern Mediterranean sediment core. Choose a proxy group, find the core on the map, and explore its measurements through time.</p></div>
+        <div class="hero-art" aria-hidden="true"><div class="wave wave-1"></div><div class="wave wave-2"></div><div class="wave wave-3"></div><div class="hero-orb"></div></div>
+      </section>
+      <div id="loading" class="loading">Reading the PO2 source snapshot…</div>
+      <section id="overview" class="view active" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">COLLECTION AT A GLANCE</p><h2>What has been compiled?</h2></div><span class="section-tag">Workbook snapshot</span></div>
+        <div id="metrics" class="metrics"></div>
+        <article class="profile-start"><div><p class="eyebrow dark">NEW TO THE COLLECTION?</p><h3>Meet the core behind these measurements</h3><p>Start with a core profile: the sediment, the samples, the study and the measurements.</p></div><a class="primary-button" href="#profile/PO2-C7AACAECB6">Meet core 64PE406-E1 →</a></article>
+        <div class="grid-two">
+          <article class="panel"><div class="panel-heading"><div><h3>Proxy coverage</h3><p>Number of source workbooks containing each measurement</p></div></div><div id="proxy-chart" class="bar-chart"></div></article>
+          <article class="panel"><div class="panel-heading"><div><h3>Age coverage</h3><p>Dated rows by 10 kyr interval; over 200 ka grouped</p></div></div><div id="age-chart" class="age-chart"></div></article>
+        </div>
+        <article class="panel coverage-panel"><div class="panel-heading"><div><h3>Source records</h3><p>Search the compiled core/reference workbooks</p></div><input id="record-search" class="search" type="search" placeholder="Search core or source file" aria-label="Search source records"></div><div class="table-wrap"><table><thead><tr><th>Core / source</th><th>Dated rows</th><th>Age span</th><th>Measured proxies</th><th></th></tr></thead><tbody id="record-rows"></tbody></table></div><div id="record-count" class="table-footer"></div></article>
+      </section>
+      <section id="groups" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">EXPLORE BY PROXY</p><h2>From a proxy group to a core record</h2></div><button id="group-download" class="download-button" disabled>Download selected observations</button></div>
+        <p class="intro">Choose a workbook group, find its cores, then select cores to plot. Select several to compare the same measurements across records.</p>
+        <div class="group-controls">
+          <label>Proxy group<select id="group-select" aria-label="Choose proxy group"></select></label>
+          <label>Measurement<select id="group-measurement" aria-label="Filter group by measurement"></select></label>
+        </div>
+        <p id="group-description" class="group-description"></p>
+        <div class="group-atlas">
+          <article class="panel group-map-panel"><div class="panel-heading"><div><h3>Cores with available data</h3><p id="group-counts" aria-live="polite"></p></div><button id="group-fit" class="text-button">Fit cores</button></div><div id="group-map" role="region" aria-label="Interactive map of cores with data for the selected proxy group"></div><div class="group-map-key"><span><i></i> Available core</span><span><i class="chosen"></i> Selected for plots</span><span>Click a core to select it. Drag to pan; use + / − to zoom.</span></div></article>
+          <article class="panel group-list-panel"><div class="panel-heading"><div><h3>Choose cores</h3><p id="group-selection-count" aria-live="polite"></p></div><button id="group-clear" class="text-button">Clear selection</button></div><input id="group-search" class="search" type="search" aria-label="Search cores in proxy group" placeholder="Search cores or studies"><div id="group-core-list" class="group-core-list"></div><p class="group-list-note">Cores without sourced coordinates stay available here. Map positions retain the registry’s location and review status.</p></article>
+        </div>
+        <article class="panel group-range-panel"><div class="group-measurement-heading"><div><h3>Selected measurements</h3><p id="group-plot-summary" aria-live="polite"></p></div><label class="group-axis-control">Plot against<select id="group-axis" aria-label="Plot horizontal axis"><option value="age">Age (ka BP)</option><option value="depth">Sample depth</option></select></label></div><div class="group-range"><span id="group-range-label">Age range (ka BP)</span><label>From <input id="group-from" type="number" step="any" aria-label="Plot range start" placeholder="Full"></label><label>To <input id="group-to" type="number" step="any" aria-label="Plot range end" placeholder="Full"></label><button id="group-range-apply" class="text-button">Apply</button><button id="group-range-reset" class="text-button">Reset</button></div><p id="group-range-note"></p></article>
+        <div id="group-plots" class="group-plots"></div>
+        <div id="group-observation" class="group-observation" aria-live="polite">Select a point to see its workbook row and sample details.</div>
+        <details class="panel group-source-panel"><summary>Source workbooks and border sections</summary><div id="group-sources"></div></details>
+        <p class="group-method-note">Each plot uses one measurement and unit. Ages and sample depths are reported by the source studies; age models have not been aligned. Proxy values are shown as measured, including source-labelled oxygen estimates.</p>
+      </section>
+      <section id="profiles" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">THE CORE BEHIND THE CODE</p><h2>Core profiles</h2></div><button id="profile-example" class="download-button">Try 64PE406-E1</button></div>
+        <p class="intro">Understand what an entry represents, where the evidence comes from and what is available to explore. Profiles also include drilling sites and holes.</p>
+        <div class="profile-controls"><label>Find an entry<input id="profile-search" class="search" type="search" placeholder="Search a name, original label, region or study" aria-label="Search core profiles"></label><label>Choose an entry<select id="profile-select" aria-label="Choose a core profile"></select></label></div>
+        <p id="profile-count" class="profile-count" aria-live="polite"></p>
+        <div id="profile-body" aria-live="polite"></div>
+      </section>
+      <section id="inspector" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">SITE INSPECTOR</p><h2>Follow the evidence from one site</h2></div><button id="inspector-download" class="download-button">Download displayed observations</button></div>
+        <p class="intro">Bring measurements from linked studies together. Each point keeps its workbook, sample depth and original row. Choose one field at a time so different units stay on separate axes.</p>
+        <div class="inspector-controls"><label>Find a site<input id="inspector-search" class="search" type="search" placeholder="Search a site name or alias" aria-label="Search sites for the inspector"></label><label>Choose a site<select id="inspector-site" aria-label="Choose site to inspect"></select></label></div>
+        <div id="inspector-summary" class="inspector-summary"></div>
+        <div class="inspector-layout">
+          <div class="inspector-charts">
+            <article class="panel inspector-chart-panel"><div class="panel-heading"><div><h3>Age and sample depth</h3><p id="inspector-depth-subtitle">Sample depths recorded by each study</p></div></div><div id="inspector-depth-chart" class="inspector-chart"></div><p id="inspector-depth-total" class="chart-count"></p></article>
+            <article class="panel inspector-chart-panel"><div class="panel-heading"><div><h3 id="inspector-field-title">Measurements through time</h3><p id="inspector-field-subtitle"></p></div><label class="inspector-field-label">Field<select id="inspector-field" aria-label="Choose measurement field"></select></label></div><div class="age-range"><label>Age from <input id="inspector-age-min" type="number" min="0" step="any" value="0"> ka BP</label><label>to <input id="inspector-age-max" type="number" min="0" step="any" value="50"> ka BP</label><button id="inspector-age-apply" class="text-button">Apply</button><span id="inspector-age-note"></span></div><div id="inspector-field-chart" class="inspector-chart"></div><p id="inspector-render-total" class="chart-count"></p><div id="inspector-point-detail" class="point-detail" aria-live="polite">Select a plotted point to see its workbook row and sample details.</div></article>
+            <article class="panel inspector-sources"><div class="panel-heading"><div><h3>Studies linked to this site</h3><p>Turn sources on or off to focus the plots.</p></div></div><div id="inspector-studies" class="study-list"></div></article>
+          </div>
+          <aside class="panel inspector-notes"><p class="eyebrow dark">HOW TO READ THIS VIEW</p><h3>Observed measurements</h3><p>Dots are values recorded in the workbooks. No values are interpolated between samples. Hover over or select a dot for its source and sample details.</p><p>Both plots use the ages supplied by each study, shown here in ka BP. Age models have not yet been reviewed or aligned. Sample depth is the distance into the core, not the water depth at the seafloor.</p><p>Different fields have different units and meanings. Oxygen-labelled workbook fields are shown as the source reports them; metals, isotopes, assemblages and other proxies are not automatically converted to dissolved oxygen.</p><div class="callout"><span>ℹ</span><p>Study interpretation, calibration and uncertainty still need a reviewed proxy dictionary and age-model review.</p></div><div id="inspector-location" class="inspector-location"></div></aside>
+        </div>
+      </section>
+      <section id="registry" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">CORE IDENTITIES &amp; LOCATION EVIDENCE</p><h2>Site registry</h2></div><button id="registry-download" class="download-button">Download registry CSV</button></div>
+        <p class="intro">Canonical entries connect original core labels to source workbooks. Archive matches have cited coordinates; curator sign-off is still pending. A drilling site can include several holes.</p>
+        <div id="registry-metrics" class="metrics"></div>
+        <div class="registry-controls"><input id="site-search" class="search" type="search" placeholder="Search core, alias, basin or source" aria-label="Search site registry"><label>Show <select id="site-status" aria-label="Filter site registry"><option value="all">All entries</option><option value="located">Archive locations</option><option value="missing">Missing locations</option><option value="review">Identity needs review</option></select></label></div>
+        <article class="panel"><div class="table-wrap"><table><thead><tr><th>Canonical entry / aliases</th><th>Location</th><th>Water depth</th><th>Review status</th><th>Sources</th><th></th></tr></thead><tbody id="site-rows"></tbody></table></div><div id="site-count" class="table-footer"></div></article>
+        <article id="site-detail" class="panel registry-detail" hidden aria-live="polite"></article>
+        <div class="callout"><span>ℹ</span><p>Missing locations stay blank. Nearby cores, drilling holes and different recovery types remain distinct unless their identity is supported. The downloadable registry includes source and review fields.</p></div>
+      </section>
+      <section id="cores" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">CORE EXPLORER</p><h2>Follow one record through time</h2></div></div>
+        <div class="controls"><label>Core or source record<select id="core-select"></select></label><label>Measurement<select id="proxy-select"></select></label></div>
+        <div id="core-profile-links" class="core-profile-links"></div>
+        <div class="grid-inspector"><article class="panel chart-panel"><div class="panel-heading"><div><h3 id="core-chart-title">Age series</h3><p id="core-chart-subtitle"></p></div></div><div id="core-chart" class="line-chart"></div></article><article class="panel detail-panel"><p class="eyebrow dark">SOURCE DETAILS</p><h3 id="core-name"></h3><dl id="core-details"></dl><p class="small-label">First reference listed</p><p id="core-reference" class="reference"></p></article></div>
+        <div id="core-registry-warning" class="callout registry-warning" hidden></div>
+        <div class="callout"><span>ℹ</span><p>The chart shows source measurements against the workbook’s age column. It does not convert these proxies into dissolved oxygen or harmonise methods across studies.</p></div>
+      </section>
+      <section id="compare" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">SITE COMPARISON</p><h2>Compare like with like</h2></div></div>
+        <p class="intro">Choose two source records and a measurement they share. Their age series appear together with each source clearly labelled.</p>
+        <div class="controls compare-controls"><label>First source<select id="compare-a"></select></label><label>Second source<select id="compare-b"></select></label><label>Shared measurement<select id="compare-proxy"></select></label></div>
+        <article class="panel chart-panel"><div class="panel-heading"><div><h3 id="compare-title">Comparison</h3><p id="compare-subtitle"></p></div></div><div id="compare-chart" class="line-chart"></div></article>
+        <div id="compare-registry-warning" class="callout registry-warning" hidden></div>
+        <div class="callout"><span>ℹ</span><p>Matching column names are a starting point. Check calibration, units and analytical methods in the source papers before drawing scientific conclusions.</p></div>
+      </section>
+      <section id="methods" class="view" hidden>
+        <div class="section-head"><div><p class="eyebrow dark">DATA &amp; METHODS</p><h2>How to read this prototype</h2></div></div>
+        <div class="grid-two method-grid"><article class="panel prose"><h3>What is included</h3><p>Source records come from the workbooks in the project’s <em>Proxy files</em> folder. The dashboard reads the <em>Data Collection</em> sheet, its header row, unit row, core ID, first reference, age and numeric measurement columns.</p><p>Each workbook remains a separate source record, even when several files describe the same core. The name of the original workbook is shown throughout.</p></article><article class="panel prose"><h3>Interpretation rules</h3><p>Age values labelled years before present are displayed as thousands of years before present (ka BP). Blank values and text “NaN” are excluded from charts. Each measurement retains the unit written in its workbook.</p><p>Coverage counts describe compiled files and measurements, not independent oxygen reconstructions or complete global sampling.</p></article><article class="panel prose"><h3>Profiles, registry and next review</h3><p>Core profiles explain each registry entry using its identity, cited location evidence and linked workbooks. This public preview includes only 64PE406-E1 and its three linked studies. Missing information and curator review remain explicit.</p><p>Workbooks containing several cores have their scope flagged; their combined charts are not individual-core series. Missing locations, ambiguous identities, a reviewed proxy dictionary and age-model status remain the next review work.</p></article><article class="panel prose"><h3>Review status</h3><p id="quality-summary">Loading quality summary…</p><p>This public preview is limited to core 64PE406-E1. The source workbooks remain the authority for values, references and caveats.</p></article></div>
+      </section>
+      <footer>PO2 Proxy Explorer <span>Public preview · 64PE406-E1 only · Three linked studies</span></footer>
+    </main>
+  </div>
+  <script src="./vendor/leaflet.js"></script>
+  <script src="./vendor/plotly-basic.min.js"></script>
+  <script src="./land.js"></script>
+  <script src="./group-explorer.js"></script>
+  <script src="./app.js?v=proxy-groups-2"></script>
+</body>
+</html>
